@@ -83,8 +83,8 @@ Scores reflect the list/fallback workflow, not the cost of a loaded Google map, 
 
 ## GitHub Pages
 
-The repository includes `.github/workflows/deploy.yml`. Every push to `main` validates and builds the app with `DEPLOY_BASE_PATH=/hackthon-project/`, then deploys the static artifact with GitHub's official Pages actions. The workflow requests Pages enablement automatically where repository policy permits it.
+The repository includes `.github/workflows/deploy.yml`. Every push to `main` validates and builds the app with `DEPLOY_BASE_PATH=/hackthon-project/`, then deploys the static artifact with GitHub's official Pages actions. GitHub requires a repository administrator to enable Pages once; the workflow token can deploy but cannot enable the feature.
 
-If automatic enablement is disallowed, in GitHub **Settings → Pages**, select **GitHub Actions** as the source. Then open **Actions → Deploy campus guide to GitHub Pages → Run workflow** on `main`. The expected site address is `https://activecoder120.github.io/hackthon-project/`. Repository policy must permit Actions, Pages deployments, and the `github-pages` environment.
+In GitHub **Settings → Pages**, select **GitHub Actions** as the source. Then open **Actions → Deploy campus guide to GitHub Pages → Run workflow** on `main`. The expected site address is `https://activecoder120.github.io/hackthon-project/`. Repository policy must permit Actions, Pages deployments, and the `github-pages` environment.
 
 Optionally add the public browser key as a repository Actions variable named `NEXT_PUBLIC_GOOGLE_MAPS_KEY`, restrict its HTTP referrer to `https://activecoder120.github.io/*` and its API to Maps JavaScript API, then rerun the deployment workflow. Without a key the published directory still works. The manifest, home link, assets and service worker support the project subdirectory.

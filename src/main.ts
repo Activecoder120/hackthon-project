@@ -9,8 +9,7 @@ import {
   type Category,
 } from "../lib/data";
 import { labels, categoryMr } from "../lib/i18n";
-import { Loader } from "@googlemaps/js-api-loader";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import type { CampusMap } from "./campus-map";
 const places = dataSchema.parse(raw),
   main = places.find((p) => p.id === "main-campus")!;
 const icons: Record<Category, string> = {
@@ -32,11 +31,20 @@ let lang: "en" | "mr" = "en",
   query = "",
   filters: Category[] = [],
   user: { lat: number; lng: number } | null = null,
-  map: google.maps.Map | undefined,
-  cluster: MarkerClusterer | undefined,
-  markers: google.maps.Marker[] = [],
-  userMarker: google.maps.Marker | undefined,
+  map: CampusMap | undefined,
   mapAttempted = false;
+let mapStatus: "idle" | "loading" | "ready" | "error" = "idle";
+function renderMapStatus() {
+  el("map-status").textContent = !navigator.onLine
+    ? t().offline
+    : mapStatus === "loading"
+      ? t().loading
+      : mapStatus === "error"
+        ? t().mapError
+        : mapStatus === "idle"
+          ? t().freeMap
+          : "";
+}
 let locationWatch: number | undefined;
 let completed: string[] = [];
 try {
@@ -58,7 +66,7 @@ const title = (p: Place) => (lang === "mr" ? p.nameMr || p.name : p.name);
 const cat = (c: Category) =>
   lang === "mr" ? categoryMr[c] : c[0].toUpperCase() + c.slice(1);
 const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `<header><a class="brand" href="${import.meta.env.BASE_URL}"><span class="crest">AIT<span>PUNE</span></span><span>Campus Guide<small>ARMY INSTITUTE OF TECHNOLOGY</small></span></a><div class="header-right"><span class="edition">DIGHI · PUNE, MAHARASHTRA</span><button id="language" aria-label="Switch language to Marathi">मराठी <span aria-hidden="true">⇄</span></button></div></header><main><section class="intro"><div><span class="eyebrow">A NEW PLACE. A FAMILIAR FEELING.</span><h1>Find your way.<br><em>Make yourself at home.</em></h1><p>Your pocket guide to AIT Pune. Find a place, plan your first day,<br class="desktop"> and take campus one step at a time.</p></div><div class="campus-stamp" aria-hidden="true"><span>18.6069° N / 73.8751° E</span><svg viewBox="0 0 220 110"><path d="M15 95h190M35 95V52h150v43M25 52l85-34 85 34H25M90 95V65h40v30M45 64h22v15H45m108-15h22v15h-22M110 18V3h30v12h-30" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>YOUR CAMPUS, CONNECTED</span></div></section><nav class="quick" aria-label="Campus quick guides"><button id="fresher"><span class="quick-icon">→</span><span id="fresher-label"></span><span>→</span></button><button id="parents"><span class="quick-icon">♧</span><span id="parents-label"></span><span>→</span></button></nav><section class="explorer" aria-labelledby="explore-title"><aside><div class="sidebar-top"><span class="eyebrow">THE CAMPUS DIRECTORY</span><h2 id="explore-title"></h2><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search"><kbd>/</kbd></label><div class="filters" id="filters" role="group" aria-label="Category filters"></div><div class="result-header"><span id="count" role="status"></span><span>AIT · PUNE</span></div></div><div id="results" class="results"></div></aside><div class="map-panel"><div class="map-toolbar"><div><span class="live-dot"></span><strong>AIT, Dighi</strong><span class="muted"> Pune, Maharashtra</span></div><button id="open-map"></button></div><div id="map" role="region" aria-label="Campus map"><div class="map-placeholder"><div class="map-art" aria-hidden="true"><span>AIT</span><i></i><i></i><i></i></div><span class="eyebrow">GET TO KNOW YOUR CAMPUS</span><h2>A place for every<br>part of your journey.</h2><p>Explore the directory or open the interactive map<br>to see Google-sourced campus locations.</p><button id="open-map-center" class="primary"></button></div></div><div id="map-status" role="status"></div><div class="map-bottom"><span id="disclaimer"></span><button id="locate"></button></div><p id="nearest" role="status"></p></div></section><section class="note"><span>ⓘ</span><p><strong>A guide that grows with you.</strong> Four Google-sourced places are on the map. More campus locations are being verified by staff. Accessibility and routes need campus confirmation.</p><a href="https://www.aitpune.com/" target="_blank" rel="noopener noreferrer">Visit AIT website →</a></section></main><footer><span>AIT <strong>Campus Guide</strong><small>Dighi, Alandi Road, Pune 411015</small></span><p id="privacy"></p></footer><button class="emergency" id="emergency"></button><dialog id="card" aria-labelledby="dialog-title"><div id="dialog-content"></div><button id="close-dialog"></button></dialog>`;
+app.innerHTML = `<header><a class="brand" href="${import.meta.env.BASE_URL}"><span class="crest">AIT<span>PUNE</span></span><span>Campus Guide<small>ARMY INSTITUTE OF TECHNOLOGY</small></span></a><div class="header-right"><span class="edition">DIGHI · PUNE, MAHARASHTRA</span><button id="language" aria-label="Switch language to Marathi">मराठी <span aria-hidden="true">⇄</span></button></div></header><main><section class="intro"><div><span class="eyebrow">A NEW PLACE. A FAMILIAR FEELING.</span><h1>Find your way.<br><em>Make yourself at home.</em></h1><p>Your pocket guide to AIT Pune. Find a place, plan your first day,<br class="desktop"> and take campus one step at a time.</p></div><div class="campus-stamp" aria-hidden="true"><span>18.6069° N / 73.8751° E</span><svg viewBox="0 0 220 110"><path d="M15 95h190M35 95V52h150v43M25 52l85-34 85 34H25M90 95V65h40v30M45 64h22v15H45m108-15h22v15h-22M110 18V3h30v12h-30" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>YOUR CAMPUS, CONNECTED</span></div></section><nav class="quick" aria-label="Campus quick guides"><button id="fresher"><span class="quick-icon">→</span><span id="fresher-label"></span><span>→</span></button><button id="parents"><span class="quick-icon">♧</span><span id="parents-label"></span><span>→</span></button></nav><section class="explorer" aria-labelledby="explore-title"><aside><div class="sidebar-top"><span class="eyebrow">THE CAMPUS DIRECTORY</span><h2 id="explore-title"></h2><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search"><kbd>/</kbd></label><div class="filters" id="filters" role="group" aria-label="Category filters"></div><div class="result-header"><span id="count" role="status"></span><span>AIT · PUNE</span></div></div><div id="results" class="results"></div></aside><div class="map-panel"><div class="map-toolbar"><div><span class="live-dot"></span><strong>AIT, Dighi</strong><span class="muted"> Pune, Maharashtra</span></div><button id="expand-map" hidden aria-pressed="false"></button><button id="open-map"></button></div><div id="map" role="region" aria-label="Campus map"><div class="map-placeholder"><div class="map-art" aria-hidden="true"><span>AIT</span><i></i><i></i><i></i></div><span class="eyebrow">GET TO KNOW YOUR CAMPUS</span><h2>A place for every<br>part of your journey.</h2><p>Explore the directory or open the interactive map<br>to see Google-sourced campus locations.</p><button id="open-map-center" class="primary"></button></div></div><div id="map-status" role="status"></div><div class="map-bottom"><span id="disclaimer"></span><button id="locate"></button></div><p id="nearest" role="status"></p></div></section><section class="note"><span>ⓘ</span><p><strong>A guide that grows with you.</strong> Four Google-sourced places are on the map. More campus locations are being verified by staff. Accessibility and routes need campus confirmation.</p><a href="https://www.aitpune.com/" target="_blank" rel="noopener noreferrer">Visit AIT website →</a></section></main><footer><span>AIT <strong>Campus Guide</strong><small>Dighi, Alandi Road, Pune 411015</small></span><p id="privacy"></p></footer><button class="emergency" id="emergency"></button><dialog id="card" aria-labelledby="dialog-title"><div id="dialog-content"></div><button id="close-dialog"></button></dialog>`;
 const el = (id: string) => document.getElementById(id)!;
 function translateStatic() {
   const mr = lang === "mr";
@@ -107,9 +115,7 @@ function translateStatic() {
     "<strong>तुमच्यासोबत वाढणारा मार्गदर्शक.</strong> नकाशावर Google-स्रोत असलेली चार ठिकाणे आहेत. इतर ठिकाणे, सुलभता आणि मार्ग यांची कर्मचाऱ्यांकडून पडताळणी आवश्यक आहे.",
   );
   set(".note a", "Visit AIT website →", "AIT संकेतस्थळाला भेट द्या →");
-  if (!navigator.onLine) el("map-status").textContent = t().offline;
-  else if (!import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY)
-    el("map-status").textContent = t().setup;
+  renderMapStatus();
 }
 function render() {
   translateStatic();
@@ -122,6 +128,9 @@ function render() {
   el("locate").textContent = "◎ " + t().locate;
   el("disclaimer").textContent = "ⓘ " + t().approx;
   el("open-map").textContent = t().map + " →";
+  el("expand-map").textContent = document.querySelector(".map-expanded")
+    ? t().collapse
+    : t().expand;
   const centerButton = document.getElementById("open-map-center");
   if (centerButton) centerButton.textContent = t().map + " →";
   el("close-dialog").textContent = t().close;
@@ -193,8 +202,7 @@ function openDialog(content: string) {
 }
 function showPlace(p: Place) {
   if (map && p.lat !== null) {
-    map.panTo({ lat: p.lat, lng: p.lng! });
-    map.setZoom(18);
+    map.focus(p);
   }
   openDialog(
     `<span class="eyebrow">${icons[p.category]} ${cat(p.category)}</span><h2 id="dialog-title">${esc(title(p))}</h2>${p.nameMr && lang === "en" ? `<p>${esc(p.nameMr)}</p>` : ""}<p class="badge">${p.lat === null ? t().locationPending : "Google-sourced · Campus confirmation pending"}</p><dl><dt>${lang === "mr" ? "इमारत / मजला" : "Building / Floor"}</dt><dd>${esc([p.building, p.floor].filter(Boolean).join(" / ") || t().locationPending)}</dd>${p.hours ? `<dt>${lang === "mr" ? "वेळ" : "Hours"}</dt><dd>${esc(p.hours)}</dd>` : ""}${p.contact ? `<dt>${lang === "mr" ? "संपर्क" : "Contact"}</dt><dd><a href="tel:${esc(p.contact.replace(/\s/g, ""))}">${esc(p.contact)}</a></dd>` : ""}<dt>♿ ${lang === "mr" ? "सुलभता" : "Accessibility"}</dt><dd>${p.accessible ? "Confirmed accessible" : "Access not confirmed — contact the institute"}</dd><dt>${lang === "mr" ? "स्रोत" : "Source"}</dt><dd>${esc(p.source)}</dd></dl>${p.description ? `<p>${esc(p.description)}</p>` : ""}<div class="actions">${p.lat !== null ? `<a class="primary button" href="${directions(p)}" target="_blank" rel="noopener noreferrer">${t().directions} →</a>` : `<span>${t().locationPending}</span>`}<button id="share">${t().share}</button></div><p id="share-status" role="status"></p>`,
@@ -267,103 +275,59 @@ function quick(kind: "fresher" | "parents" | "emergency") {
   );
 }
 async function loadMap() {
+  if (!navigator.onLine) {
+    renderMapStatus();
+    return;
+  }
   if (map) {
+    const retry = mapStatus === "error";
+    if (retry) {
+      mapStatus = "loading";
+      renderMapStatus();
+    }
+    map.refresh(retry);
     el("map").scrollIntoView({ block: "center" });
     return;
   }
   if (mapAttempted) return;
-  const key = import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
-  if (!navigator.onLine) {
-    el("map-status").textContent = t().offline;
-    return;
-  }
-  if (!key) {
-    el("map-status").textContent = t().setup;
-    return;
-  }
   mapAttempted = true;
-  el("map-status").textContent = "Loading map…";
+  mapStatus = "loading";
+  renderMapStatus();
   try {
-    const authWindow = window as Window & { gm_authFailure?: () => void };
-    authWindow.gm_authFailure = () => {
-      el("map-status").textContent =
-        t().offline + " Check the Maps key, referrer restrictions and billing.";
-      mapAttempted = false;
-    };
-    const loader = new Loader({ apiKey: key, version: "weekly" });
-    await Promise.race([
-      loader.load(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Map load timed out")), 20000),
-      ),
-    ]);
-    map = new google.maps.Map(el("map"), {
-      center: { lat: main.lat!, lng: main.lng! },
-      zoom: 17,
-      mapTypeControl: true,
-      mapTypeControlOptions: {
-        mapTypeIds: ["roadmap", "satellite", "terrain"],
+    const { createCampusMap } = await import("./campus-map");
+    el("map").replaceChildren();
+    map = createCampusMap(el("map"), {
+      center: [main.lat!, main.lng!],
+      title,
+      category: cat,
+      icons,
+      onSelect: showPlace,
+      onTilesReady: () => {
+        mapStatus = "ready";
+        renderMapStatus();
       },
-      streetViewControl: false,
-      fullscreenControl: true,
+      onTilesError: () => {
+        mapStatus = "error";
+        renderMapStatus();
+      },
     });
+    el("expand-map").hidden = false;
     updateMarkers();
     if (user) showUser();
-    el("map-status").textContent = "";
+    el("open-map").textContent = t().map + " →";
   } catch {
-    el("map-status").textContent = t().offline;
+    map?.destroy();
+    map = undefined;
+    mapStatus = "error";
     mapAttempted = false;
+    renderMapStatus();
   }
 }
 function updateMarkers() {
-  if (!map) return;
-  cluster?.clearMarkers();
-  markers.forEach((m) => m.setMap(null));
-  markers = search(places, query, filters)
-    .filter((p) => p.lat !== null)
-    .map((p) => {
-      const marker = new google.maps.Marker({
-        position: { lat: p.lat!, lng: p.lng! },
-        title: title(p) + " · " + cat(p.category),
-        optimized: false,
-        label: { text: icons[p.category], color: "#ffffff" },
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor:
-            (
-              {
-                hostel: "#7c4c35",
-                parking: "#3d5e85",
-                library: "#645087",
-              } as Partial<Record<Category, string>>
-            )[p.category] || "#24543f",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-          scale: 18,
-        },
-      });
-      marker.addListener("click", () => showPlace(p));
-      return marker;
-    });
-  cluster = new MarkerClusterer({ map, markers });
+  map?.setPlaces(search(places, query, filters));
 }
 function showUser() {
-  if (!map || !user) return;
-  userMarker?.setMap(null);
-  userMarker = new google.maps.Marker({
-    map,
-    position: user,
-    title: "Your location",
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: "#1769df",
-      fillOpacity: 1,
-      strokeColor: "#fff",
-      strokeWeight: 3,
-      scale: 9,
-    },
-  });
+  if (user) map?.showUser(user);
 }
 el("search").addEventListener("input", (e) => {
   query = (e.target as HTMLInputElement).value;
@@ -378,6 +342,14 @@ el("language").onclick = () => {
 el("fresher").onclick = () => quick("fresher");
 el("parents").onclick = () => quick("parents");
 el("emergency").onclick = () => quick("emergency");
+el("expand-map").onclick = () => {
+  const expanded = document
+    .querySelector(".map-panel")!
+    .classList.toggle("map-expanded");
+  el("expand-map").setAttribute("aria-pressed", String(expanded));
+  el("expand-map").textContent = expanded ? t().collapse : t().expand;
+  map?.refresh();
+};
 el("open-map").onclick = loadMap;
 el("open-map-center").onclick = loadMap;
 el("close-dialog").onclick = () => dialog.close();
@@ -411,10 +383,23 @@ el("locate").onclick = () => {
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
   );
 };
-window.addEventListener("offline", () => {
-  el("map-status").textContent = t().offline;
+window.addEventListener("offline", renderMapStatus);
+window.addEventListener("online", () => {
+  if (map) {
+    mapStatus = "loading";
+    map.refresh(true);
+  }
+  renderMapStatus();
 });
 document.addEventListener("keydown", (e) => {
+  if (
+    e.key === "Escape" &&
+    !dialog.open &&
+    document.querySelector(".map-expanded")
+  ) {
+    el("expand-map").click();
+    el("expand-map").focus();
+  }
   if (
     e.key === "/" &&
     !(e.target instanceof HTMLInputElement) &&
@@ -425,9 +410,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 render();
-if (!navigator.onLine) el("map-status").textContent = t().offline;
-else if (!import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY)
-  el("map-status").textContent = t().setup;
+renderMapStatus();
 const shared = places.find(
   (p) => p.id === decodeURIComponent(location.hash.slice(1)),
 );

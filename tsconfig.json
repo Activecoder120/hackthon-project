@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "types": ["vite/client", "google.maps"]
+    "types": ["vite/client"]
   },
   "include": ["src", "lib", "data"]
 }

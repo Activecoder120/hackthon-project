@@ -1,8 +1,8 @@
 {
-  "measuredAt": "2026-10-15T11:19:54.805Z",
+  "measuredAt": "2026-10-15T11:56:34.424Z",
   "lighthouseVersion": "13.5.0",
   "formFactor": "mobile",
-  "scope": "Production build; missing Maps key; system Chromium; simulated mobile throttling on localhost. Live Google Maps is untested.",
+  "scope": "Production Leaflet/OpenStreetMap build under /hackthon-project/, map unopened (lazy loading); system Chromium, simulated mobile throttling. No external tiles fetched by this audit.",
   "scores": {
     "performance": 99,
     "accessibility": 100,
@@ -11,7 +11,7 @@
   "metrics": {
     "first-contentful-paint": "1.1\u00a0s",
     "largest-contentful-paint": "1.3\u00a0s",
-    "total-blocking-time": "130\u00a0ms",
+    "total-blocking-time": "120\u00a0ms",
     "cumulative-layout-shift": "0"
   },
   "warnings": []

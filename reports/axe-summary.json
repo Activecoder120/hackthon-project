@@ -1,6 +1,16 @@
 [
   {
+    "check": "axe-mobile-dark",
+    "scope": "Leaflet build; local tile fixtures where map is open. No remote tile availability claim.",
+    "violations": 0,
+    "passes": 24,
+    "incomplete": 1,
+    "reviewNeeded": ["color-contrast"],
+    "axeVersion": "4.13.0"
+  },
+  {
     "check": "axe-home",
+    "scope": "Leaflet build; local tile fixtures where map is open. No remote tile availability claim.",
     "violations": 0,
     "passes": 24,
     "incomplete": 1,
@@ -9,16 +19,9 @@
   },
   {
     "check": "axe-dialog",
+    "scope": "Leaflet build; local tile fixtures where map is open. No remote tile availability claim.",
     "violations": 0,
-    "passes": 19,
-    "incomplete": 0,
-    "reviewNeeded": [],
-    "axeVersion": "4.13.0"
-  },
-  {
-    "check": "axe-mobile-dark",
-    "violations": 0,
-    "passes": 24,
+    "passes": 18,
     "incomplete": 1,
     "reviewNeeded": ["color-contrast"],
     "axeVersion": "4.13.0"

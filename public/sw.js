@@ -1,5 +1,5 @@
 const BASE = new URL("./", self.location.href).pathname;
-const CACHE = "ait-campus-" + BASE + "-v2";
+const CACHE = "ait-campus-" + BASE + "-v3-leaflet";
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {

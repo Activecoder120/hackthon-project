@@ -27,7 +27,6 @@ jobs:
       - run: npm run build
         env:
           DEPLOY_BASE_PATH: /hackthon-project/
-          NEXT_PUBLIC_GOOGLE_MAPS_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_KEY }}
       # Pages must be enabled once in repository settings. GITHUB_TOKEN
       # can deploy an enabled site but cannot enable Pages for a repository.
       - uses: actions/configure-pages@v5

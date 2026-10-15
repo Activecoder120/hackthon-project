@@ -885,3 +885,104 @@ dialog dd {
     color: #c1d0b4;
   }
 }
+/* Leaflet controls and map markers remain legible in both color schemes. */
+#map.leaflet-container {
+  background: #e7ecdf;
+  font-family: inherit;
+  color: #24382f;
+  isolation: isolate;
+}
+#map .leaflet-control-zoom a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  color: #24382f;
+  background: #fff;
+}
+#map .leaflet-control-attribution {
+  background: #fff;
+  color: #24382f;
+  font-size: 11px;
+  max-width: calc(100% - 10px);
+  padding: 4px 8px;
+}
+#map .leaflet-control-attribution a {
+  color: #164c83;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+#map .leaflet-control a:focus-visible,
+#map .leaflet-marker-icon:focus-visible {
+  outline: 3px solid #bd6b26;
+  outline-offset: 3px;
+}
+.campus-pin {
+  background: none;
+  border: 0;
+  display: grid;
+  place-items: center;
+}
+.pin-body {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 40px;
+  border: 2px solid white;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 2px 5px #0005;
+  color: white;
+  font-size: 21px;
+  line-height: 1;
+}
+.campus-cluster {
+  display: grid;
+  place-items: center;
+  background: #244c3c;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px #0005;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+.user-position {
+  background: #1769df;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px #1769df33;
+}
+#map.leaflet-container .leaflet-tile {
+  filter: none;
+}
+.map-panel.map-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  border-radius: 0;
+  margin: 0;
+  max-width: none;
+}
+.map-expanded #map {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+#expand-map {
+  font-size: 11px;
+}
+@media (max-width: 760px) {
+  .map-toolbar {
+    flex-wrap: wrap;
+  }
+  .map-toolbar > div {
+    margin-right: auto;
+  }
+  #expand-map {
+    margin-left: auto;
+  }
+}
+.emergency {
+  z-index: 110;
+}

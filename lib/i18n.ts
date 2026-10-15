@@ -4,6 +4,8 @@ export const labels = {
     search: "Search places, buildings, departments…",
     all: "All places",
     map: "Open map",
+    expand: "Expand map",
+    collapse: "Close full-screen map",
     list: "Places",
     locate: "Use my location",
     pending: "Being verified",
@@ -14,11 +16,13 @@ export const labels = {
     fresher: "I’m a fresher. Where do I go first?",
     parents: "Parents: visiting today?",
     emergency: "Emergency",
-    setup:
-      "Map setup needed. Add NEXT_PUBLIC_GOOGLE_MAPS_KEY to .env.local. The campus list is available.",
+    freeMap: "Free OpenStreetMap · No API key needed. Tap Open map to explore.",
+    loading: "Loading campus map…",
+    mapError:
+      "Map tiles unavailable. The campus list is still available. Tap Open map to retry.",
     offline: "Map offline. Showing list only.",
     privacy:
-      "No analytics. Location stays on this device; opening Google Maps shares your route with Google. Checklist saved on this device only.",
+      "No analytics. Location stays on this device. Map tiles load from OpenStreetMap; Google Maps receives routes you open. Checklist saved on this device only.",
     locationPending: "Location pending",
     done: "Done",
     checklist: "Your first-day checklist",
@@ -30,6 +34,8 @@ export const labels = {
     search: "ठिकाण, इमारत, विभाग शोधा…",
     all: "सर्व ठिकाणे",
     map: "नकाशा उघडा",
+    expand: "नकाशा मोठा करा",
+    collapse: "पूर्ण स्क्रीन बंद करा",
     list: "ठिकाणे",
     locate: "माझे स्थान वापरा",
     pending: "पडताळणी सुरू आहे",
@@ -40,11 +46,14 @@ export const labels = {
     fresher: "नवीन विद्यार्थी? आधी कुठे जायचे?",
     parents: "पालक: आज भेट देत आहात?",
     emergency: "आपत्कालीन",
-    setup:
-      "नकाशासाठी .env.local मध्ये NEXT_PUBLIC_GOOGLE_MAPS_KEY जोडा. यादी उपलब्ध आहे.",
+    freeMap:
+      "मोफत OpenStreetMap · API की आवश्यक नाही. नकाशा पाहण्यासाठी नकाशा उघडा दाबा.",
+    loading: "कॅम्पस नकाशा लोड होत आहे…",
+    mapError:
+      "नकाशा उपलब्ध नाही. यादी वापरा किंवा नकाशा उघडा दाबून पुन्हा प्रयत्न करा.",
     offline: "नकाशा ऑफलाइन. फक्त यादी दाखवत आहे.",
     privacy:
-      "विश्लेषण नाही. स्थान फक्त या उपकरणावर. Google Maps उघडल्यास मार्ग Google सोबत शेअर होतो. यादी याच उपकरणावर जतन होते.",
+      "विश्लेषण नाही. स्थान फक्त या उपकरणावर. नकाशा OpenStreetMap वरून येतो. Google Maps उघडल्यास मार्ग Google सोबत शेअर होतो. यादी याच उपकरणावर जतन होते.",
     locationPending: "स्थान प्रलंबित",
     done: "पूर्ण",
     checklist: "पहिल्या दिवसाची यादी",

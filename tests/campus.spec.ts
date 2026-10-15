@@ -4,7 +4,7 @@ import { writeFile } from "node:fs/promises";
 test("map fallback, hostel filter, info card and accessible quick guides", async ({
   page,
 }, testInfo) => {
-  await page.goto("/");
+  await page.goto("./");
   await page.locator("#open-map-center").click();
   await expect(
     page.getByRole("status").filter({ hasText: "Map setup needed" }),
@@ -60,7 +60,7 @@ test("offline shell and mobile dark mode remain usable", async ({
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("./");
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
   });

@@ -50,7 +50,7 @@ Phone and hours come exclusively from JSON. The main institute number is not rep
 
 ## Deployment
 
-Deploy `dist/` to any HTTPS static host after `npm ci && npm run build`. Supply the browser Maps key at build time. Serve at the origin root (the worker paths assume `/`). Use HTTPS for geolocation, sharing, service workers, and clipboard. Do not cache `sw.js` or `index.html` indefinitely; Vite's hashed assets can be cached immutably. Google Maps also needs access to maps.googleapis.com and maps.gstatic.com; imagery may use other Google hosts. Configure CSP and network access for the APIs actually used. No backend credentials are needed.
+Deploy `dist/` to any HTTPS static host after `npm ci && npm run build`. Supply the browser Maps key at build time. For a subdirectory deployment set `DEPLOY_BASE_PATH` at build time (for example `/hackthon-project/`). Use HTTPS for geolocation, sharing, service workers, and clipboard. Do not cache `sw.js` or `index.html` indefinitely; Vite's hashed assets can be cached immutably. Google Maps also needs access to maps.googleapis.com and maps.gstatic.com; imagery may use other Google hosts. Configure CSP and network access for the APIs actually used. No backend credentials are needed.
 
 ## Validation results
 
@@ -80,3 +80,11 @@ CHROME_PATH=/usr/bin/chromium npx lighthouse http://127.0.0.1:4173 \
 ```
 
 Scores reflect the list/fallback workflow, not the cost of a loaded Google map, and vary with hardware and load. A real authorized Maps key is still needed to validate live map, clustering, location dot, satellite/terrain, and third-party map accessibility. A human keyboard/screen-reader and real campus route review remain necessary before a public launch. Automated axe coverage does not establish full WCAG 2.2 AA conformance.
+
+## GitHub Pages
+
+The repository includes `.github/workflows/deploy.yml`. Every push to `main` validates and builds the app with `DEPLOY_BASE_PATH=/hackthon-project/`, then deploys the static artifact with GitHub's official Pages actions. The workflow requests Pages enablement automatically where repository policy permits it.
+
+If automatic enablement is disallowed, in GitHub **Settings → Pages**, select **GitHub Actions** as the source. Then open **Actions → Deploy campus guide to GitHub Pages → Run workflow** on `main`. The expected site address is `https://activecoder120.github.io/hackthon-project/`. Repository policy must permit Actions, Pages deployments, and the `github-pages` environment.
+
+Optionally add the public browser key as a repository Actions variable named `NEXT_PUBLIC_GOOGLE_MAPS_KEY`, restrict its HTTP referrer to `https://activecoder120.github.io/*` and its API to Maps JavaScript API, then rerun the deployment workflow. Without a key the published directory still works. The manifest, home link, assets and service worker support the project subdirectory.

@@ -1,0 +1,26 @@
+[
+  {
+    "check": "axe-home",
+    "violations": 0,
+    "passes": 24,
+    "incomplete": 1,
+    "reviewNeeded": ["color-contrast"],
+    "axeVersion": "4.13.0"
+  },
+  {
+    "check": "axe-dialog",
+    "violations": 0,
+    "passes": 19,
+    "incomplete": 0,
+    "reviewNeeded": [],
+    "axeVersion": "4.13.0"
+  },
+  {
+    "check": "axe-mobile-dark",
+    "violations": 0,
+    "passes": 24,
+    "incomplete": 1,
+    "reviewNeeded": ["color-contrast"],
+    "axeVersion": "4.13.0"
+  }
+]

@@ -1,5 +1,7 @@
 # AIT Campus Guide
 
+**[Open the live campus guide](https://activecoder120.github.io/hackthon-project/)**
+
 A mobile-first directory for Army Institute of Technology, Dighi, Alandi Road, Pune 411015. Built with plain TypeScript, Vite and CSS to keep a single-page campus guide small and maintainable. No application server or database is required. Zod validates the shared JSON at build time; Google Maps is requested only after the user opens the map.
 
 ## Run
